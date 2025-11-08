@@ -1,3 +1,4 @@
+import liff from "@line/liff";
 import React, { useState, useRef, useEffect } from "react";
 
 const ShootingGame = () => {
@@ -202,15 +203,164 @@ const ShootingGame = () => {
     };
   }, []);
 
+  const REPO_OWNER = import.meta.env.REPOSITORY_OWNER;
+  const REPO_NAME = import.meta.env.REPOSITORY_NAME;
+
+  const handleShare = () => {
+    if (liff.isApiAvailable("shareTargetPicker")) {
+      liff
+        .shareTargetPicker([
+          {
+            type: "flex",
+            altText: "シューティングゲームのスコアをシェア！",
+            contents: {
+              type: "bubble",
+              hero: {
+                type: "image",
+                url: `https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/refs/heads/main/game_icon.png`,
+                size: "full",
+                aspectRatio: "20:13",
+                aspectMode: "cover",
+              },
+              body: {
+                type: "box",
+                layout: "vertical",
+                contents: [
+                  {
+                    type: "box",
+                    layout: "vertical",
+                    contents: [
+                      {
+                        type: "text",
+                        text: `シューティングゲームで${score}点をとったよ！`,
+                        size: "lg",
+                        color: "#000000",
+                        weight: "bold",
+                        wrap: true,
+                      },
+                    ],
+                    spacing: "none",
+                  },
+                  {
+                    type: "box",
+                    layout: "vertical",
+                    contents: [
+                      {
+                        type: "text",
+                        text: "手軽に遊べるミニゲーム",
+                        size: "sm",
+                        color: "#999999",
+                        wrap: true,
+                      },
+                    ],
+                    spacing: "none",
+                  },
+                  {
+                    type: "box",
+                    layout: "vertical",
+                    contents: [
+                      {
+                        type: "button",
+                        action: {
+                          type: "uri",
+                          label: "遊んでみる！",
+                          uri: `https://miniapp.line.me/${liff.id}`,
+                        },
+                        style: "primary",
+                        height: "md",
+                        color: "#17c950",
+                      },
+                      {
+                        type: "button",
+                        action: {
+                          type: "uri",
+                          label: "シェアする",
+                          uri: `https://miniapp.line.me/${liff.id}/share`,
+                        },
+                        style: "link",
+                        height: "md",
+                        color: "#469fd6",
+                      },
+                    ],
+                    spacing: "xs",
+                    margin: "lg",
+                  },
+                ],
+                spacing: "md",
+              },
+              footer: {
+                type: "box",
+                layout: "vertical",
+                contents: [
+                  {
+                    type: "separator",
+                    color: "#f0f0f0",
+                  },
+                  {
+                    type: "box",
+                    layout: "horizontal",
+                    contents: [
+                      {
+                        type: "image",
+                        url: `https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/refs/heads/main/game_icon.png`,
+                        flex: 1,
+                        gravity: "center",
+                      },
+                      {
+                        type: "text",
+                        text: "シューティングゲーム",
+                        flex: 19,
+                        size: "xs",
+                        color: "#999999",
+                        weight: "bold",
+                        gravity: "center",
+                        wrap: false,
+                      },
+                      {
+                        type: "image",
+                        url: "https://vos.line-scdn.net/service-notifier/footer_go_btn.png",
+                        flex: 1,
+                        gravity: "center",
+                        size: "xxs",
+                        action: {
+                          type: "uri",
+                          label: "action",
+                          uri: `https://miniapp.line.me/${liff.id}`,
+                        },
+                      },
+                    ],
+                    flex: 1,
+                    spacing: "md",
+                    margin: "md",
+                  },
+                ],
+              },
+            },
+          },
+        ])
+        .then(function (res) {
+          if (res) {
+            alert("シェアしました！");
+          } else {
+            alert("シェアをキャンセルしました。");
+          }
+        })
+        .catch(function (error) {
+          alert("エラーが発生しました。");
+        });
+    }
+  };
+
   return (
     <div>
       <div className="mb-4">
         <h2 className="text-xl font-bold">クリックシューティングゲーム</h2>
         <p>スコア: {score}</p>
         {gameOver && (
-          <p className="text-red-500">
-            ゲームオーバー！クリックまたはタップでリスタート
-          </p>
+          <div>
+            ゲームオーバー！クリックでリスタート
+            <button onClick={handleShare}>シェア！</button>
+          </div>
         )}
       </div>
       <canvas ref={canvasRef} className="border-2 border-gray-300" />
